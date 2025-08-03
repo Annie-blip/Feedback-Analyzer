@@ -53,6 +53,10 @@ An automated n8n workflow that collects student feedback, stores it in Google Sh
 
 Ideal for schools, colleges, training centers, or any institution seeking to automate and improve their feedback collection and response system.
 
+## 📃 License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
 
 ---
 
