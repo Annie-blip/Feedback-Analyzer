@@ -1,0 +1,496 @@
+{
+  "name": "Feedback_Analyzer",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Student feedback form",
+        "formDescription": "student feedback\n\n",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Student name"
+            },
+            {
+              "fieldLabel": "email id",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "phone",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "feedback"
+            },
+            {
+              "fieldLabel": "suggest ideas for improvement"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -736,
+        192
+      ],
+      "id": "d5f73bc1-b98d-48f6-bc54-e933c8919b8b",
+      "name": "On form submission",
+      "webhookId": "431c7f72-6660-48cb-a80e-e921600ecbbe"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1odfag8IH_BlIi-_I6oiC2z0LnJ8dE8SPVceOd63gzAQ",
+          "mode": "list",
+          "cachedResultName": "Students feedback form ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1odfag8IH_BlIi-_I6oiC2z0LnJ8dE8SPVceOd63gzAQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1odfag8IH_BlIi-_I6oiC2z0LnJ8dE8SPVceOd63gzAQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json['Student name'] }}",
+            "Email": "={{ $json['email id'] }}",
+            "Phone no.": "={{ $json.phone }}",
+            "Feedback": "={{ $json.feedback }}",
+            "Suggested ideas for improvement": "={{ $json['suggest ideas for improvement'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone no.",
+              "displayName": "Phone no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Feedback",
+              "displayName": "Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Suggested ideas for improvement",
+              "displayName": "Suggested ideas for improvement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -448,
+        192
+      ],
+      "id": "3488bb58-a044-4dec-8224-87773025d803",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RmQSPh4fr3v25fRd",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        176
+      ],
+      "id": "062dbbf4-a1d2-4e66-abfb-41cff663e338",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "j4D4rBcjg8orNsOI",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give sentiment analysis on the student {{ $json.Feedback }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        0
+      ],
+      "id": "10f346a8-b761-41f7-bf2d-c7d98ebc8d83",
+      "name": "sentiment analysis"
+    },
+    {
+      "parameters": {
+        "description": "Use the tool to think about something and also for sentiment analyis "
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        112,
+        176
+      ],
+      "id": "d7fd8114-0a18-410c-b858-e74c9b6327e9",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=werite the positive things for this response and use some emojis and good tone for this and write only message\n{{ $('On form submission').item.json['suggest ideas for improvement'] }}",
+        "options": {
+          "systemMessage": "Thanks for the idea of improvement"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        320
+      ],
+      "id": "3b28dd39-5b93-45d3-a79a-e1739d5eb8b5",
+      "name": "Higlight key problem"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        512
+      ],
+      "id": "c6504ae2-5595-40ed-838c-796711fa4525",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "j4D4rBcjg8orNsOI",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a student feedback response agent.\nA student has submitted feedback which includes a problem{{ $json.output }} and a suggested improvement. Your task is to:\n\nUnderstand the problem and the improvement suggestion.\n\n\n\nBriefly mention how the issue will be addressed or considered in the future.\n\nThank the student for their helpful suggestion.\n\nReinforce that their voice matters and such feedback helps improve the institution.\n\n",
+        "options": {
+          "systemMessage": "please remove all the things and take only message\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        304
+      ],
+      "id": "507284a4-f782-4096-a820-aa56a136e4de",
+      "name": "email agent"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1bzvYk43tz507RLPY2KghDwORm8KfX9wlPyPA8zarQ2o",
+          "mode": "list",
+          "cachedResultName": "Collecting Student's Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bzvYk43tz507RLPY2KghDwORm8KfX9wlPyPA8zarQ2o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bzvYk43tz507RLPY2KghDwORm8KfX9wlPyPA8zarQ2o/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Student's Feedbacks": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "Student's Feedbacks"
+          ],
+          "schema": [
+            {
+              "id": "Student's Feedbacks",
+              "displayName": "Student's Feedbacks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        336,
+        0
+      ],
+      "id": "4a88874d-8e68-458d-9c6d-661d4e3424de",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iZrE9lH5XtaW5IYe",
+          "name": "Google Sheets account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        480
+      ],
+      "id": "0fe37ea2-4caf-4cdc-ba2e-1b0878475e57",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "j4D4rBcjg8orNsOI",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "you should only give the response"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        112,
+        512
+      ],
+      "id": "97b5c5d0-7a10-4ad4-971c-c876237f412d",
+      "name": "Think1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['email id'] }}",
+        "subject": "RESPONSE OF YOUR VALUABLE FEEDBACK",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        832,
+        304
+      ],
+      "id": "88132f01-13b6-4df5-b742-25268e4a5612",
+      "name": "Send a message",
+      "webhookId": "563eef41-d5f1-4262-ad42-8b71f5f1fddf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HeqyXOFCykcpBT49",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "sentiment analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Higlight key problem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "sentiment analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sentiment analysis": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "sentiment analysis",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Higlight key problem": {
+      "main": [
+        [
+          {
+            "node": "email agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Higlight key problem",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "email agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Higlight key problem",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "174285a2-ed94-4e59-85e7-030da3ee1571",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b972d095d6d90225d2d6ed384c31a08c1837edeaf6059e96d1cdac8f5bf790"
+  },
+  "id": "oc7Cvef3DCiupX9Z",
+  "tags": []
+}
